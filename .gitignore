@@ -1,0 +1,4 @@
+embeddings.npy
+faiss_index.bin
+__pycache__
+venv
