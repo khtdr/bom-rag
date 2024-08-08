@@ -7,11 +7,9 @@ from sentence_transformers import SentenceTransformer
 import faiss
 from transformers import pipeline
 
-# Set up CLI argument parsing
-parser = argparse.ArgumentParser(description='RAG System for a "ThE bOoK oF mOrMoN"')
-parser.add_argument('--rebuild', action='store_true', help='Rebuild the embeddings and FAISS index')
+parser = argparse.ArgumentParser(description='RAG CLI for "ThE bOoK oF mOrMoN"')
+parser.add_argument('--build', action='store_true', help='Build the embeddings and FAISS index files')
 args = parser.parse_args()
-
 
 # File paths
 embeddings_file = 'embeddings.npy'
@@ -57,8 +55,8 @@ else:
     # Load the FAISS index
     index = faiss.read_index(faiss_index_file)
 
-# Load summarization pipeline
-summarizer = pipeline('summarization')
+# Load QA model
+qa_model = pipeline('question-answering', model='deepset/roberta-base-squad2')
 
 def search(query, top_k=5):
     query_embedding = model.encode([query])
@@ -73,26 +71,30 @@ def search(query, top_k=5):
 def generate_answer(query):
     results = search(query)
 
-    # Combine passages from the search results
-    passages = " ".join([result['passage'] for result in results])
-
-    # Generate summary
-    summary = summarizer(passages, max_length=150, min_length=50, do_sample=False)[0]['summary_text']
-
-    # Add citations
-    citations = []
+    # Use QA model to answer the question based on retrieved passages
+    answers = []
     for result in results:
-        citations.append(f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}")
+        answer = qa_model(question=query, context=result['passage'])
+        answers.append({
+            'answer': answer['answer'],
+            'score': answer['score'],  # Save the score to sort later
+            'citation': f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}"
+        })
 
-    return summary, citations
+    # Sort answers by the confidence score in descending order
+    answers = sorted(answers, key=lambda x: x['score'], reverse=True)
+
+    return answers
 
 def answer_query(query):
-    summary, citations = generate_answer(query)
-    print("Summary:")
-    print(summary)
-    print("\nCitations:")
-    for citation in citations:
-        print(citation)
+    answers = generate_answer(query)
+
+    print("Answers and Citations (Sorted by Best Answer):")
+    for i, answer_data in enumerate(answers):
+        print(f"\nAnswer {i+1}:")
+        print(answer_data['answer'])
+        print("Citation:")
+        print(answer_data['citation'])
 
 # Example usage
-answer_query("infant baptism")
+answer_query("When is self defense justifiable?")

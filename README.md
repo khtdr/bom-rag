@@ -1,21 +1,13 @@
-
-# Raggedy Mormon
+# RAG CLI for "ThE bOoK oF mOrMoN"
 
 ## Setup
-``` fish
-python -m venv venv
-. venv/bin/activate.fish
-pip install pandas faiss-cpu transformers sentence-transformers
+Installs the dependencies and builds the embeddings and indexing files
+```sh
+make build
 ```
 
 
 ## Running
-``` fish
-python ./bom-rag.py
-```
-
-
-## Hacking
-``` fish
-python ./bom-rag.py --rebuild
+```sh
+make run
 ```
