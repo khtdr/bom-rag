@@ -2,7 +2,7 @@
 install:
 	python3 -m venv venv
 	./venv/bin/python3 -m pip install --upgrade pip
-	./venv/bin/pip3 install pandas faiss-cpu transformers sentence-transformers torch sentencepiece
+	./venv/bin/pip3 install pandas faiss-cpu transformers sentence-transformers torch sentencepiece tqdm
 	./venv/bin/python3 bom-rag.py --help 2>warnings.log
 
 build: install
