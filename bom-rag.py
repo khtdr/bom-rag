@@ -95,7 +95,7 @@ def generate_answer_with_t5(query, results, t5_tokenizer, t5_model, qa_model):
         answers.append({
             'answer': answer,
             'score': scored_answer['score'],
-            'citation': f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}"
+            'citation': f"{result['book']} {result['chapter']}:{result['verse']} -\n{result['passage']}"
         })
     return sorted(answers, key=lambda x: x['score'], reverse=True)
 
@@ -103,8 +103,8 @@ def generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model,
     answers = generate_answer_with_t5(query, results, t5_tokenizer, t5_model, qa_model)
     concatenated_answer = " ".join([answer_data['answer'] for answer_data in answers])
     summarized_answer = summarization_model(concatenated_answer, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
-    citations = "\n\n".join([f"Citation: {answer_data['citation']}" for answer_data in answers])
-    return f"{summarized_answer}\n\n{citations}"
+    citations = "\n\n".join([f"{answer_data['citation']}" for answer_data in answers])
+    return f"{summarized_answer}\n{citations}\n\n"
 
 def main():
     args = parse_arguments()
@@ -121,17 +121,20 @@ def main():
     t5_tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
     t5_model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
 
-    print("RAG system ready. Type your questions or press Ctrl+D to exit.")
+    print("bOoK oF mOrMoN RAG ready. Type your questions or press Ctrl+D to exit.")
+    print("----------------------------------------------------------------------")
     while True:
         try:
-            query = input("What is your question about ThE bOoK oF mOrMoN? ")
-            print("Generating answer...")
+            print("What is your question? (Ctrl+D to exit)")
+            print(">", end=" ")
+            query = input()
+            if not query.strip(): continue
+            print("sEaRcHiNg FoR aNsWeRs...")
             results = improved_search(query, index, df, sentence_model)
             final_answer = generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model, summarization_model)
-            print("\nFinal Answer:")
             print(final_answer)
         except EOFError:
-            print("\nExiting. Goodbye!")
+            print("\nuNtIl We mEeT aGaIn")
             break
 
 if __name__ == "__main__":
