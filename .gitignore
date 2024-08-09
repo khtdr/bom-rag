@@ -1,3 +1,4 @@
+warnings.log
 passages.json
 embeddings.npy
 faiss_index.bin

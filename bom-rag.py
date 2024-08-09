@@ -1,11 +1,12 @@
 import os
 import re
 import argparse
-import pandas as pd
-import numpy as np
-from sentence_transformers import SentenceTransformer
+import pandas
+import numpy
+import torch
 import faiss
-from transformers import pipeline
+import transformers
+from sentence_transformers import SentenceTransformer
 
 # important files
 bom_source_file = 'bom.txt'
@@ -27,13 +28,13 @@ if args.build or not os.path.exists(passages_file):
             if not line.strip(): continue
             book, chapter, verse, passage = re.search(pattern, line).groups()
             data.append({ 'book':book, 'chapter':chapter, 'verse':verse, 'passage':passage})
-    df = pd.DataFrame(data)
+    df = pandas.DataFrame(data)
     df.to_json(passages_file, orient='records')
 else:
     data = []
     with open(passages_file, 'r') as file:
-        data = pd.read_json(file).to_dict('records')
-    df = pd.DataFrame(data)
+        data = pandas.read_json(file).to_dict('records')
+    df = pandas.DataFrame(data)
 
 # the sentence model used...
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -41,24 +42,28 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 # read and/or create the embeddings file
 if args.build or not os.path.exists(embeddings_file):
     df['embedding'] = df['passage'].apply(lambda x: model.encode(x))
-    np.save(embeddings_file, df['embedding'].tolist())
-    embeddings = np.load(embeddings_file)
+    numpy.save(embeddings_file, df['embedding'].tolist())
+    embeddings = numpy.load(embeddings_file)
 else:
-    embeddings = np.load(embeddings_file)
+    embeddings = numpy.load(embeddings_file)
 
 # read and/or create the faiss index file
 if args.build or not os.path.exists(embeddings_file) or not os.path.exists(faiss_index_file):
     index = faiss.IndexFlatL2(embeddings.shape[1])
-    index.add(np.array(embeddings, dtype=np.float32))
+    index.add(numpy.array(embeddings, dtype=numpy.float32))
     faiss.write_index(index, faiss_index_file)
 else:
     index = faiss.read_index(faiss_index_file)
 
-qa_model = pipeline('question-answering', model='deepset/roberta-base-squad2')
+# Check if GPU is available
+device = 0 if torch.cuda.is_available() else -1
+
+# use a model good for Q/A
+qa_model = transformers.pipeline('question-answering', model='deepset/roberta-base-squad2', device=device)
 
 def search(query, top_k=5):
     query_embedding = model.encode([query])
-    D, I = index.search(np.array(query_embedding, dtype=np.float32), top_k)
+    D, I = index.search(numpy.array(query_embedding, dtype=numpy.float32), top_k)
     results = []
     for idx in I[0]:
         results.append(df.iloc[idx])
