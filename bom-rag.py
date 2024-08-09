@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import torch
 import faiss
-from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from transformers import pipeline, T5ForConditionalGeneration, T5Tokenizer
 
@@ -44,24 +43,46 @@ def load_or_create_passages(build):
 def load_or_create_embeddings(df, model, build):
     if build or not os.path.exists(EMBEDDINGS_FILE):
         print("Creating embeddings...")
-        df['embedding'] = df['passage'].progress_apply(lambda x: model.encode(x))
+        df['embedding'] = df['passage'].apply(lambda x: model.encode(x))
         np.save(EMBEDDINGS_FILE, df['embedding'].tolist())
     return np.load(EMBEDDINGS_FILE)
 
 def load_or_create_faiss_index(embeddings, build):
     if build or not os.path.exists(EMBEDDINGS_FILE) or not os.path.exists(FAISS_INDEX_FILE):
         print("Creating FAISS index...")
-        index = faiss.IndexFlatL2(embeddings.shape[1])
-        index.add(np.array(embeddings, dtype=np.float32))
+        index = faiss.IndexFlatIP(embeddings.shape[1])  # Changed to IndexFlatIP for cosine similarity
+        normalized_embeddings = embeddings / np.linalg.norm(embeddings, axis=1)[:, np.newaxis]
+        index.add(normalized_embeddings)
         faiss.write_index(index, FAISS_INDEX_FILE)
     else:
         index = faiss.read_index(FAISS_INDEX_FILE)
     return index
 
-def search(query, index, df, model, top_k=5):
+def improved_search(query, index, df, model, top_k=5):
     query_embedding = model.encode([query])
-    D, I = index.search(np.array(query_embedding, dtype=np.float32), top_k)
-    return [df.iloc[idx] for idx in I[0]]
+    normalized_query = query_embedding / np.linalg.norm(query_embedding)
+    D, I = index.search(normalized_query, top_k)
+    results = [df.iloc[idx] for idx in I[0]]
+
+    # Add context by including neighboring verses
+    contextualized_results = []
+    for result in results:
+        book, chapter, verse = result['book'], int(result['chapter']), int(result['verse'])
+        context = df[(df['book'] == book) &
+                     (df['chapter'].astype(int) == chapter) &
+                     (df['verse'].astype(int).between(verse - 1, verse + 1))]
+        contextualized_results.extend(context.to_dict('records'))
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_results = []
+    for item in contextualized_results:
+        item_tuple = tuple(item.items())
+        if item_tuple not in seen:
+            seen.add(item_tuple)
+            unique_results.append(item)
+
+    return unique_results[:top_k]
 
 def generate_answer_with_t5(query, results, t5_tokenizer, t5_model, qa_model):
     answers = []
@@ -103,13 +124,10 @@ def main():
     print("RAG system ready. Type your questions or press Ctrl+D to exit.")
     while True:
         try:
-            query = input("Enter your question: ")
+            query = input("What is your question about ThE bOoK oF mOrMoN? ")
             print("Generating answer...")
-            with tqdm(total=100, desc="Progress", bar_format='{l_bar}{bar}') as pbar:
-                results = search(query, index, df, sentence_model)
-                pbar.update(30)
-                final_answer = generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model, summarization_model)
-                pbar.update(70)
+            results = improved_search(query, index, df, sentence_model)
+            final_answer = generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model, summarization_model)
             print("\nFinal Answer:")
             print(final_answer)
         except EOFError:
