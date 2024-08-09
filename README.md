@@ -21,9 +21,13 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > bOoK oF mOrMoN RAG ready. Type your questions or press Ctrl+D to exit.
 > ----------------------------------------------------------------------
 > What is your question? (Ctrl+D to exit)
+>
 > \> Who is Alma?
+>
 > sEaRcHiNg FoR aNsWeRs...
+>
 > A man of God high priest Amlici Alma God. Amlica Alma God was a man-of-God high priest. He was the son of God and a son of Jesus.
+>
 > Alma 2:30 -
 > And it came to pass that Alma, being a man of God, being exercised with much faith, cried, saying: O Lord, have mercy and spare my life, that I may be an instrument in thy hands to save and preserve this people.
 > 
@@ -41,9 +45,13 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > 
 > 
 > What is your question? (Ctrl+D to exit)
+>
 > \> should I be a homophobe?
+>
 > sEaRcHiNg FoR aNsWeRs...
+>
 > It is not expedient when you do not cry unto the Lord, let your hearts be full, drawn out in whosoever doth not obey his laws he causeth to be destroyed pour out your souls in your closets, and your secret places, and in your wilderness Cry over the flocks of your fields, that they may increase.
+>
 > Mosiah 29:24 -
 > And now behold I say unto you, it is not expedient that such abominations should come upon you.
 > 
@@ -61,9 +69,13 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > 
 > 
 > What is your question? (Ctrl+D to exit)
+>
 > \> what is the importance of the family?
+>
 > sEaRcHiNg FoR aNsWeRs...
+>
 > Every family being separate one from another children transgression of their parents love towards God and all men till the earth. every family being separated one from each other children's transgression.
+>
 > Mosiah 2:5 -
 > And it came to pass that when they came up to the temple, they pitched their tents round about, every man according to his family, consisting of his wife, and his sons, and his daughters, and their sons, and their daughters, from the eldest down to the youngest, every family being separate one from another.
 > 
@@ -81,9 +93,13 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > 
 > 
 > What is your question? (Ctrl+D to exit)
+>
 > \> how do I know the truth?
+>
 > sEaRcHiNg FoR aNsWeRs...
+>
 > " by the power of the Holy Ghost the Holy Spirit the Lord God hath made them manifest unto me by his Holy Spirit in Christ Jesus I testify unto you," he said.
+>
 > Moroni 10:5 -
 > And by the power of the Holy Ghost ye may know the truth of all things.
 > 
@@ -101,9 +117,13 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > 
 > 
 > What is your question? (Ctrl+D to exit)
+>
 > \> how do I build a submarine?
+>
 > sEaRcHiNg FoR aNsWeRs...
+>
 > If God had commanded me to do all things I could do them tools of the ore which I did molten out of the rock the Spirit of God a ship. How is it that he cannot instruct me, that I should build a ship?
+>
 > 1 Nephi 17:50 -
 > And I said unto them: If God had commanded me to do all things I could do them. If he should command me that I should say unto this water, be thou earth, it should be earth; and if I should say it, it would be done.
 > 
@@ -121,5 +141,8 @@ Not the best, this is just a proof of concept. Garbage in, garbage out 😜
 > 
 > 
 > What is your question? (Ctrl+D to exit)
+>
 > \>  
+>
 > uNtIl We mEeT aGaIn
+>
