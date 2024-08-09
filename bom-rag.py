@@ -74,7 +74,13 @@ summarization_model = transformers.pipeline("summarization", model="facebook/bar
 def generate_summarized_answer(query):
     answers = generate_answer_with_t5(query)
     concatenated_answer = " ".join([answer_data['answer'] for answer_data in answers])
-    return summarization_model(concatenated_answer, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
+    # Generate a summary
+    summarized_answer = summarization_model(concatenated_answer, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
+    # Append citations to the summary
+    citations = "\n\n".join([f"Citation: {answer_data['citation']}" for answer_data in answers])
+    # Combine the summary with the citations
+    final_answer = f"{summarized_answer}\n\n{citations}"
+    return final_answer
 
 
 from transformers import T5ForConditionalGeneration, T5Tokenizer
