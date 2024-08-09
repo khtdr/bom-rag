@@ -70,7 +70,7 @@ def search(query, top_k=5):
     return results
 
 
-summarization_model = pipeline("summarization", model="facebook/bart-large-cnn")
+summarization_model = transformers.pipeline("summarization", model="facebook/bart-large-cnn")
 def generate_summarized_answer(query):
     answers = generate_answer_with_t5(query)
     concatenated_answer = " ".join([answer_data['answer'] for answer_data in answers])
