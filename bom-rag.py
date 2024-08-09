@@ -99,11 +99,13 @@ def generate_answer_with_t5(query):
         input_ids = t5_tokenizer.encode(input_text, return_tensors='pt')
         outputs = t5_model.generate(input_ids)
         answer = t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        scored_answer = qa_model(question=query, context=result['passage'])
         answers.append({
             'answer': answer,
+            'score': scored_answer['score'],  # Use the score from the original QA model
             'citation': f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}"
         })
-    return answers
+    return sorted(answers, key=lambda x: x['score'], reverse=True)
 
 def answer_query(query):
     # answers = generate_answer(query)
