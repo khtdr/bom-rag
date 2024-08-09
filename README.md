@@ -1,5 +1,7 @@
 # RAG CLI for "ThE bOoK oF mOrMoN"
 
+An exercise for playing with LLM and RAGs.
+
 ## Setup
 Installs the dependencies and builds the embeddings and indexing files
 ```sh
