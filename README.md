@@ -14,6 +14,8 @@ make run
 
 ## Example Session
 
+Not the best, this is just a proof of concept. Garbage in, garbage out 😜 
+
 ```
 > make run
 
