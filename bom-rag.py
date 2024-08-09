@@ -16,7 +16,7 @@ FAISS_INDEX_FILE = 'faiss_index.bin'
 
 # Models
 MODEL_NAME = "t5-large"
-SENTENCE_MODEL = 'all-MiniLM-L6-v2'
+SENTENCE_MODEL = 'all-mpnet-base-v2' # 'all-MiniLM-L6-v2'
 QA_MODEL = 'deepset/roberta-base-squad2'
 SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
 
@@ -115,27 +115,30 @@ def main():
     embeddings = load_or_create_embeddings(df, sentence_model, args.build)
     index = load_or_create_faiss_index(embeddings, args.build)
 
-    device = 0 if torch.cuda.is_available() else -1
-    qa_model = pipeline('question-answering', model=QA_MODEL, device=device)
-    summarization_model = pipeline("summarization", model=SUMMARIZATION_MODEL)
-    t5_tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
-    t5_model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+    if args.build:
+        print('Setup is done.')
+    else:
+        device = 0 if torch.cuda.is_available() else -1
+        qa_model = pipeline('question-answering', model=QA_MODEL, device=device)
+        summarization_model = pipeline("summarization", model=SUMMARIZATION_MODEL)
+        t5_tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+        t5_model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
 
-    print("bOoK oF mOrMoN RAG ready. Type your questions or press Ctrl+D to exit.")
-    print("----------------------------------------------------------------------")
-    while True:
-        try:
-            print("What is your question? (Ctrl+D to exit)")
-            print(">", end=" ")
-            query = input()
-            if not query.strip(): continue
-            print("sEaRcHiNg FoR aNsWeRs...")
-            results = improved_search(query, index, df, sentence_model)
-            final_answer = generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model, summarization_model)
-            print(final_answer)
-        except EOFError:
-            print("\nuNtIl We mEeT aGaIn")
-            break
+        print("bOoK oF mOrMoN RAG ready. Type your questions or press Ctrl+D to exit.")
+        print("----------------------------------------------------------------------")
+        while True:
+            try:
+                print("What is your question? (Ctrl+D to exit)")
+                print(">", end=" ")
+                query = input()
+                if not query.strip(): continue
+                print("sEaRcHiNg FoR aNsWeRs...")
+                results = improved_search(query, index, df, sentence_model)
+                final_answer = generate_summarized_answer(query, results, t5_tokenizer, t5_model, qa_model, summarization_model)
+                print(final_answer)
+            except EOFError:
+                print("\nuNtIl We mEeT aGaIn")
+                break
 
 if __name__ == "__main__":
     main()
