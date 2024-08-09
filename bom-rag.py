@@ -69,18 +69,12 @@ def search(query, top_k=5):
         results.append(df.iloc[idx])
     return results
 
-def generate_answer(query):
-    results = search(query)
-    answers = []
-    for result in results:
-        answer = qa_model(question=query, context=result['passage'])
-        answers.append({
-            'answer': answer['answer'],
-            'score': answer['score'],  # Save the score to sort later
-            'citation': f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}"
-        })
-    answers = sorted(answers, key=lambda x: x['score'], reverse=True)
-    return answers
+
+summarization_model = pipeline("summarization", model="facebook/bart-large-cnn")
+def generate_summarized_answer(query):
+    answers = generate_answer_with_t5(query)
+    concatenated_answer = " ".join([answer_data['answer'] for answer_data in answers])
+    return summarization_model(concatenated_answer, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
 
 
 from transformers import T5ForConditionalGeneration, T5Tokenizer
@@ -107,6 +101,13 @@ def generate_answer_with_t5(query):
         })
     return sorted(answers, key=lambda x: x['score'], reverse=True)
 
+def generate_final_answer(query):
+    # Choose either the concatenated or summarized approach
+    final_answer = generate_summarized_answer(query)  # Or use generate_concatenated_answer(query)
+
+    print("Final Answer:")
+    print(final_answer)
+
 def answer_query(query):
     # answers = generate_answer(query)
     # print("Answers and Citations (Sorted by Best Answer):")
@@ -123,4 +124,4 @@ def answer_query(query):
         print("Citation:")
         print(answer_data['citation'])
 
-answer_query("When is self-defense justifiable?")
+generate_final_answer("When is self-defense justifiable?")
