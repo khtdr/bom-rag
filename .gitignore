@@ -1,3 +1,4 @@
+passages.json
 embeddings.npy
 faiss_index.bin
 __pycache__
