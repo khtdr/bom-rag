@@ -82,9 +82,39 @@ def generate_answer(query):
     answers = sorted(answers, key=lambda x: x['score'], reverse=True)
     return answers
 
+
+from transformers import T5ForConditionalGeneration, T5Tokenizer
+# Using T5 for Question Answering
+model_name = "t5-large"  # or "t5-3b" for even better performance
+t5_tokenizer = T5Tokenizer.from_pretrained(model_name)
+t5_model = T5ForConditionalGeneration.from_pretrained(model_name)
+
+def generate_answer_with_t5(query):
+    results = search(query)
+    answers = []
+    for result in results:
+        # Use the T5 model to generate answers
+        # answer = generate_answer_with_t5(query, result['passage'])
+        input_text = f"question: {query} context: {result['passage']}"
+        input_ids = t5_tokenizer.encode(input_text, return_tensors='pt')
+        outputs = t5_model.generate(input_ids)
+        answer = t5_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        answers.append({
+            'answer': answer,
+            'citation': f"{result['book']} {result['chapter']}:{result['verse']}\n{result['passage']}"
+        })
+    return answers
+
 def answer_query(query):
-    answers = generate_answer(query)
-    print("Answers and Citations (Sorted by Best Answer):")
+    # answers = generate_answer(query)
+    # print("Answers and Citations (Sorted by Best Answer):")
+    # for i, answer_data in enumerate(answers):
+    #     print(f"\nAnswer {i+1}:")
+    #     print(answer_data['answer'])
+    #     print("Citation:")
+    #     print(answer_data['citation'])
+    answers = generate_answer_with_t5(query)
+    print("Answers and Citations (T5) (Sorted by Best Answer):")
     for i, answer_data in enumerate(answers):
         print(f"\nAnswer {i+1}:")
         print(answer_data['answer'])
