@@ -25,14 +25,14 @@ _SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
 
 # Assets, models, tokenizers, etc. that are used in the RAG
 _device = 0 if torch.cuda.is_available() else -1
-dataframe: pandas.DataFrame
-embeddings: Any
-search_index: faiss.IndexFlatIP
-sentence_model: sentence_transformers.SentenceTransformer
-qa_model: transformers.Pipeline
-summarization_model: transformers.Pipeline
-tokenizer: transformers.T5Tokenizer
-t5_model: transformers.T5ForConditionalGeneration
+dataframe: pandas.DataFrame = None
+embeddings: Any = None
+search_index: faiss.IndexFlatIP = None
+sentence_model: sentence_transformers.SentenceTransformer = None
+qa_model: transformers.Pipeline = None
+summarization_model: transformers.Pipeline = None
+tokenizer: transformers.T5Tokenizer = None
+t5_model: transformers.T5ForConditionalGeneration= None
 
 
 def load_or_create_models():
