@@ -174,8 +174,9 @@ def main():
                 query = input()
                 if not query.strip():
                     continue
-                print("sEaRcHiNg FoR aNsWeRs...")
+                print("*> sEaRcHiNg FoR aNsWeRs...")
                 results = improved_search(query, index, df, sentence_model)
+                print("")
                 final_answer = generate_summarized_answer(
                     query,
                     results,
