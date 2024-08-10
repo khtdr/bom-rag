@@ -19,7 +19,7 @@ def search_results(query, top_k=5):
         context = loaders.dataframe[
             (loaders.dataframe["book"] == book)
             & (loaders.dataframe["chapter"].astype(int) == chapter)
-            & (loaders.dataframe["verse"].astype(int).between(verse - 1, verse + 1))
+            & (loaders.dataframe["verse"].astype(int).between(verse - 1, verse + 2))
         ]
         contextualized_results.extend(context.to_dict("records"))  # type: ignore
 
@@ -60,16 +60,15 @@ def generate_answers_with_t5(query, results):
     return sorted(answers, key=lambda x: x["score"], reverse=True)
 
 
-def generate_summarized_answer(query, results):
-    answers = generate_answers_with_t5(query, results)
+def get_citations(results):
+    return [
+        f"{result['book']} {result['chapter']}:{result['verse']} - {result['passage']}"
+        for result in results
+    ]
+
+
+def generate_summarized_answer(answers):
     concatenated_answer = " ".join([answer_data["answer"] for answer_data in answers])
-    summarized_answer = loaders.summarization_model(  # type: ignore
+    return loaders.summarization_model(  # type: ignore
         concatenated_answer, max_length=150, min_length=30, do_sample=False
     )[0]["summary_text"]
-    citations = "\n".join(
-        [
-            f"{answer_data['result']['book']} {answer_data['result']['chapter']}:{answer_data['result']['verse']} - {answer_data['result']['passage']}"
-            for answer_data in answers
-        ]
-    )
-    return f"{summarized_answer}\n\nSee:\n{citations}\n\n"
