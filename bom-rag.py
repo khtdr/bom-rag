@@ -16,7 +16,7 @@ FAISS_INDEX_FILE = "faiss_index.bin"
 
 # Models
 MODEL_NAME = "t5-large"
-SENTENCE_MODEL = "all-mpnet-base-v2"  # 'all-MiniLM-L6-v2'
+SENTENCE_MODEL = "all-mpnet-base-v2"
 QA_MODEL = "deepset/roberta-base-squad2"
 SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
 
@@ -26,27 +26,29 @@ def parse_arguments():
     parser.add_argument(
         "--build",
         action="store_true",
-        help="Build the embeddings and FAISS index files",
+        help="Build the data files",
     )
     return parser.parse_args()
 
 
-def load_or_create_passages(build):
+def load_or_create_passages(build=False):
     if build or not os.path.exists(PASSAGES_FILE):
         data = []
         pattern = r"^(.*)\s(\d+):(\d+)\s{5}(.*)$"
         with open(BOM_SOURCE_FILE) as file:
             for line in file:
                 if line.strip():
-                    book, chapter, verse, passage = re.search(pattern, line).groups()
-                    data.append(
-                        {
-                            "book": book,
-                            "chapter": chapter,
-                            "verse": verse,
-                            "passage": passage,
-                        }
-                    )
+                    match = re.search(pattern, line)
+                    if match:
+                        book, chapter, verse, passage = match.groups()
+                        data.append(
+                            {
+                                "book": book,
+                                "chapter": chapter,
+                                "verse": verse,
+                                "passage": passage,
+                            }
+                        )
         df = pd.DataFrame(data)
         df.to_json(PASSAGES_FILE, orient="records")
     else:
@@ -54,7 +56,7 @@ def load_or_create_passages(build):
     return df
 
 
-def load_or_create_embeddings(df, model, build):
+def load_or_create_embeddings(df, model, build=False):
     if build or not os.path.exists(EMBEDDINGS_FILE):
         print("Creating embeddings...")
         df["embedding"] = df["passage"].apply(lambda x: model.encode(x))
@@ -62,7 +64,7 @@ def load_or_create_embeddings(df, model, build):
     return np.load(EMBEDDINGS_FILE)
 
 
-def load_or_create_faiss_index(embeddings, build):
+def load_or_create_faiss_index(embeddings, build=False):
     if (
         build
         or not os.path.exists(EMBEDDINGS_FILE)
@@ -75,7 +77,7 @@ def load_or_create_faiss_index(embeddings, build):
         normalized_embeddings = (
             embeddings / np.linalg.norm(embeddings, axis=1)[:, np.newaxis]
         )
-        index.add(normalized_embeddings)
+        index.add(normalized_embeddings)  # type: ignore
         faiss.write_index(index, FAISS_INDEX_FILE)
     else:
         index = faiss.read_index(FAISS_INDEX_FILE)
@@ -85,7 +87,7 @@ def load_or_create_faiss_index(embeddings, build):
 def improved_search(query, index, df, model, top_k=5):
     query_embedding = model.encode([query])
     normalized_query = query_embedding / np.linalg.norm(query_embedding)
-    D, I = index.search(normalized_query, top_k)
+    _, I = index.search(normalized_query, top_k)
     results = [df.iloc[idx] for idx in I[0]]
 
     # Add context by including neighboring verses
@@ -182,7 +184,7 @@ def main():
                     qa_model,
                     summarization_model,
                 )
-                print(final_answer)
+                print(f"\n>> {final_answer}\n")
             except EOFError:
                 print("\nuNtIl We mEeT aGaIn")
                 break
