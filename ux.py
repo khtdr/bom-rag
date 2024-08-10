@@ -3,31 +3,20 @@ import shutil
 
 def info(*args):
     # Join all arguments with a space and print them in dim text, then reset
-    print(RESET + BOLD + " ".join(args).strip() + RESET)
+    return RESET + BOLD + " ".join(args).strip() + RESET
 
 
 def status(*args):
     # Join all arguments with a space and print them in dim text, then reset
     # ux.status("*> sEaRcHiNg FoR aNsWeRs...")
-    print(RESET + BOLD + " ".join(args).strip() + RESET)
+    return RESET + BOLD + " ".join(args).strip() + RESET
 
 
 def prompt(*args):
     # Join all arguments with a space and print them in bold text, then reset
     # print("-- ")
     # print("?>", end=" ")
-    print(BOLD + RESET + " ".join(args).strip() + RESET)
-    return input().strip()
-
-
-def wait(*args):
-    # Join all arguments with a space and print them in dim text, then reset
-    print(DIM + RESET + " ".join(args).strip() + RESET)
-
-
-def respond(*args):
-    # Join all arguments with a space and print them in dim text, then reset
-    print(DIM + RESET + " ".join(args).strip() + RESET)
+    return BOLD + RESET + " ".join(args).strip() + RESET
 
 
 # Text Styles
