@@ -69,7 +69,7 @@ def generate_answers(query, results):
         )
         answer = loaders.tokenizer.decode(outputs[0], skip_special_tokens=True)
         if makes_sense_enough(f"{answer}", instructions):
-            print(ux.info(f" .·({answer[:32]}...)"))
+            print(ux.info(f"·> ({answer[:48]}...)"))
             scored_answer = loaders.qa_model(question=query, context=result["contextualized_passage"])  # type: ignore
             answers.append(
                 {

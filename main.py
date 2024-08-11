@@ -58,6 +58,7 @@ def main():
 
             print(ux.status("bEaRiNg tEsTiMoNy..."))
             summary = rag.summarize_answers(answers, query, results)
+            print(ux.cite(query), end="")
             print(ux.answer(summary))
 
         except EOFError:

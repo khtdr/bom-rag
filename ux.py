@@ -2,26 +2,26 @@ import shutil
 
 
 def info(*args):
-    return RESET + DIM + " ".join(args).strip() + RESET
+    return RESET + DIM + " ".join(args) + RESET
 
 
 def status(*args):
-    return "\n" + RESET + BOLD + " ".join(args).strip() + RESET
+    return "\n" + RESET + BOLD + " ".join(args) + RESET
 
 
 def prompt(*args):
-    return "\n" + RESET + BOLD + " ".join(args).strip() + "\n>> " + RESET
+    return "\n" + RESET + BOLD + " ".join(args) + "\n>> " + RESET
 
 
 def answer(*args):
-    text = " ".join(args).strip()
+    text = " ".join(args)
     indented = _indent_text(text, 3)
     prefix = RESET + BOLD + "=>" + RESET
     return RESET + prefix + BLUE + BOLD + indented[2:] + RESET
 
 
 def cite(*args):
-    text = " ".join(args).strip()
+    text = " ".join(args)
     indented = _indent_text(text, 3)
     prefix = RESET + DIM + "->" + RESET
     return RESET + prefix + indented[2:] + "\n" + RESET
