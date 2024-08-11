@@ -1,21 +1,21 @@
-# RAG CLI for "ThE bOoK oF mOrMoN"
+# the bOoK oF mOrMoN - A RAG CLI APP
 
 An exercise for playing with LLM and RAGs.
 
 ## Setup
-Installs the dependencies and builds the embeddings and indexing files
+Installs the dependencies and builds the embeddings and indexing files. This will take a few minutes at least.
 ```sh
 make build
 ```
 
 
 ## Running
+Starts an interactive chat session.
 ```sh
 make run
 ```
 
 ## Example Session
-
   - The semantic search works great, and is fast.
   - The answer and summary text generation is slow and not reliable.
 
