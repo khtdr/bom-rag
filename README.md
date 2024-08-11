@@ -19,7 +19,7 @@ make run
   - The semantic search works great, and is fast.
   - The answer and summary text generation is slow and not reliable.
 
-<html>
+<pre>
 <span style="font-weight: lighter">Loading BoM-RAG...</span>
 <span style="font-weight: lighter">Ready (press Ctrl+D to exit)</span>
 
@@ -221,4 +221,5 @@ make run
 
 <span style="font-weight: lighter">quit
 </span>
-</html>
+
+</pre>
