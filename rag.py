@@ -38,7 +38,6 @@ def search_results(query, top_k=5, context_window=1):
 
         # Create a new result with both original and combined text
         contextualized_result = result.copy()
-        contextualized_result["original_passage"] = result["passage"]
         contextualized_result["contextualized_passage"] = combined_text
         contextualized_results.append(contextualized_result)
 
@@ -47,13 +46,14 @@ def search_results(query, top_k=5, context_window=1):
 
 def results_citations(results):
     return [
-        f"{result['book']} {result['chapter']}:{result['verse']} - {result['original_passage']}"
+        f"{result['book']} {result['chapter']}:{result['verse']} - {result['passage']}"
         for result in results
     ]
 
 
 def generate_answers(query, results):
     answers = []
+    max_len = ux._get_term_width() - 8
     for result in results:
         # input_text = f"question: {query}\n\ncontext: {result['contextualized_passage']}"
         instructions = f"Using the context provided containing a passage from the Book of Mormon, answer the following question in full sentences."
@@ -69,27 +69,31 @@ def generate_answers(query, results):
         )
         answer = loaders.tokenizer.decode(outputs[0], skip_special_tokens=True)
         if makes_sense_enough(f"{answer}", instructions):
-            print(ux.info(f"·> ({answer[:48]}...)"))
-            scored_answer = loaders.qa_model(question=query, context=result["contextualized_passage"])  # type: ignore
+            answer_text = f"{answer}"
+            answer_text = (
+                answer_text
+                if len(answer_text) <= max_len
+                else f"{answer_text[:max_len]}..."
+            )
+            print(ux.info(f"·> ({answer_text})"))
             answers.append(
                 {
                     "answer": answer,
                     "result": result,
-                    "score": scored_answer["score"],
                 }
             )
-    return sorted(answers, key=lambda x: x["score"], reverse=True)
+    return answers
 
 
-def summarize_answers(answers, query, results):
-    if len(answers) < 1:
-        concatenated_answer = ". ".join([result["passage"] for result in results[:2]])
-    else:
-        concatenated_answer = ". ".join(
-            [answer_data["answer"] for answer_data in answers[:2]]
-        )
+def summarize_answers(answers, query, _):
+    concatenated_answer = " ".join(
+        [
+            f"""In chapter {a['result']['chapter']}, verse {a['result']['verse']}, {a['result']['book']} wrote, "{a['result']['passage']}". This means that {a['answer']}."""
+            for a in answers
+        ]
+    )
 
-    prompt = f"""{query} {concatenated_answer}"""
+    prompt = f"""{query}\n\n{concatenated_answer}"""
     return loaders.summarization_model(  # type: ignore
         prompt,
         min_new_tokens=12,
@@ -99,12 +103,10 @@ def summarize_answers(answers, query, results):
 
 
 def makes_sense_enough(text, prompt, max_similarity_ratio=0.7):
-    # Normalize text and prompt
     text = text.lower()
-    prompt = prompt.lower()
-
-    # Remove punctuation and split into words
     text_words = re.findall(r"\b\w+\b", text)
+
+    prompt = prompt.lower()
     prompt_words = re.findall(r"\b\w+\b", prompt)
 
     # Check if all text_words are in prompt_words
