@@ -34,29 +34,35 @@ def main():
 
     # Start a simple REPL to answer the user's questions.
     print(ux.info("Ready (press Ctrl+D to exit)"))
+    was_empty = False
     while True:
         try:
             print(ux.prompt("wHaT iS wAnTeD?"), end="")
             query = input().strip()
             if not query:
-                print(ux.info("Press Ctrl+D to exit."))
+                if was_empty:
+                    break
+                was_empty = True
+                print(ux.info("Press Ctrl+D or Enter again to exit."))
                 continue
+            else:
+                was_empty = False
 
             print(ux.status("sEaRcHiNg FoR aNsWeRs..."))
-
             results = rag.search_results(query)
-
-            for citation in rag.get_citations(results):
+            for citation in rag.results_citations(results):
                 print(ux.cite(citation))
 
+            print(ux.status("rEcEiViNg iNsPiRaTiOn..."))
+            answers = rag.generate_answers(query, results)
+
             print(ux.status("bEaRiNg tEsTiMoNy..."))
-            answers = rag.generate_answers_with_t5(query, results)
-            summary = rag.generate_summarized_answer(answers)
+            summary = rag.summarize_answers(answers, query, results)
             print(ux.answer(summary))
 
         except EOFError:
-            print(ux.info("\nquit"))
             break
+    print(ux.info("\nquit"))
 
 
 if __name__ == "__main__":

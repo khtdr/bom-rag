@@ -25,18 +25,18 @@ _SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
 
 # Assets, models, tokenizers, etc. that are used in the RAG
 _device = 0 if torch.cuda.is_available() else -1
-dataframe: pandas.DataFrame = None
-embeddings: Any = None
-search_index: faiss.IndexFlatIP = None
-sentence_model: sentence_transformers.SentenceTransformer = None
-qa_model: transformers.Pipeline = None
-summarization_model: transformers.Pipeline = None
-tokenizer: transformers.T5Tokenizer = None
-t5_model: transformers.T5ForConditionalGeneration= None
+dataframe: pandas.DataFrame = None  # type: ignore
+embeddings: Any = None  # type: ignore
+search_index: faiss.IndexFlatIP = None  # type: ignore
+sentence_model: sentence_transformers.SentenceTransformer = None  # type: ignore
+qa_model: transformers.Pipeline = None  # type: ignore
+summarization_model: transformers.Pipeline = None  # type: ignore
+tokenizer: transformers.T5Tokenizer = None  # type: ignore
+answer_model: transformers.T5ForConditionalGeneration = None  # type: ignore
 
 
 def load_or_create_models():
-    global sentence_model, qa_model, summarization_model, t5_model, tokenizer
+    global sentence_model, qa_model, summarization_model, answer_model, tokenizer
     sentence_model = sentence_model or sentence_transformers.SentenceTransformer(
         _SENTENCE_MODEL
     )
@@ -47,8 +47,9 @@ def load_or_create_models():
         "summarization", model=_SUMMARIZATION_MODEL, device=_device
     )
     tokenizer = tokenizer or transformers.T5Tokenizer.from_pretrained(_MODEL_NAME)
-    t5_model = t5_model or transformers.T5ForConditionalGeneration.from_pretrained(
-        _MODEL_NAME
+    answer_model = (
+        answer_model
+        or transformers.T5ForConditionalGeneration.from_pretrained(_MODEL_NAME)
     )
 
 
