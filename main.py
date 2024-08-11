@@ -47,6 +47,7 @@ def main():
                 continue
             else:
                 was_empty = False
+            query = f"{query}?" if not query.endswith('?') else query
 
             print(ux.status("sEaRcHiNg FoR aNsWeRs..."))
             results = rag.search_results(query)
